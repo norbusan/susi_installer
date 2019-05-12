@@ -34,26 +34,6 @@
 # - RedHat and SuSE and Alpine and Mint and ... support ???
 
 
-# Dependencies of the packages or building
-# we try to move as many pip packages to Debian packages
-DEBDEPS="
-  git openssl wget python3-pip sox libsox-fmt-all flac
-  libportaudio2 libatlas3-base libpulse0 libasound2 vlc-bin vlc-plugin-base
-  vlc-plugin-video-splitter python3-cairo python3-flask flite
-  default-jdk-headless pixz udisks2 python3-requests python3-service-identity
-  python3-pyaudio python3-levenshtein python3-pafy python3-colorlog
-  python3-watson-developer-cloud ca-certificates
-"
-
-# If snowboy cannot be installed via pip we need to build it
-SNOWBOYBUILDDEPS="
-  python3-setuptools perl libterm-readline-gnu-perl \
-  i2c-tools libasound2-plugins python3-dev \
-  swig libpulse-dev libasound2-dev \
-  libatlas-base-dev
-"
-
-
 #
 # determine Debian/Ubuntu release - we don't support anything else at the moment
 #                   Raspbian       Debian 9      Ubuntu          Debian 10
@@ -105,6 +85,32 @@ then
 else
     USER=`id -un`
 fi
+
+# Dependencies of the packages or building
+# we try to move as many pip packages to Debian packages
+DEBDEPS="
+  git openssl wget python3-pip sox libsox-fmt-all flac
+  libportaudio2 libatlas3-base libpulse0 libasound2 vlc-plugin-base
+  vlc-plugin-video-splitter python3-cairo python3-flask flite
+  default-jdk-headless pixz udisks2 python3-requests python3-service-identity
+  python3-pyaudio python3-levenshtein python3-pafy python3-colorlog
+  python3-watson-developer-cloud ca-certificates
+"
+# vlx-bin is not available in Ubunut 16.04
+if [ $targetSystem = ubuntu && $isBuster = 0 ] ; then
+    DEBDEPS="$DEBDEPS vlc-nox"
+else
+    DEBDEPS="$DEBDEPS vlc-bin"
+fi
+
+# If snowboy cannot be installed via pip we need to build it
+SNOWBOYBUILDDEPS="
+  python3-setuptools perl libterm-readline-gnu-perl \
+  i2c-tools libasound2-plugins python3-dev \
+  swig libpulse-dev libasound2-dev \
+  libatlas-base-dev
+"
+
 
 #
 # Allow overriding the destination directory on the Desktop
