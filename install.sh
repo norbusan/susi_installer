@@ -65,15 +65,16 @@ SNOWBOYBUILDDEPS="
 # Raspbian release: 9.N (like Debian stretch)
 #
 # We classify systems into two categories:
-# - isRaspi=0|1 -- only 1 on Raspbian)
+# - targetSystem = raspi | debian | ubuntu
 # - isBuster=0|1 -- at least Debian 10 or Ubuntu 18.04
 vendor=`lsb_release -i -s 2>/dev/null`
 version=`lsb_release -r -s 2>/dev/null`
-isRaspi=0
+targetSystem=""
 isBuster=0
 case "$vendor" in
     Debian)
         # remove Debian .N version number
+        targetSystem=debian
         version=${version%.*}
         case "$version" in
             9) isBuster=0 ;;
@@ -82,12 +83,13 @@ case "$vendor" in
         esac
         ;;
     Raspbian)
-        isRaspi=1
+        targetSystem=raspi
         ;;
     Ubuntu)
+        targetSystem=ubuntu
         case "$version" in
             18.*|19.*|20.*) isBuster=1 ;;
-            16.*|17.*) ;;
+            16.*|17.*) isBuster=0 ;;
             *) echo "Unsupported Ubuntu version: $version" >&2 ; exit 1 ;;
         esac
         ;;
@@ -97,7 +99,7 @@ case "$vendor" in
         ;;
 esac
 
-if [ $isRaspi = 1 ]
+if [ $targetSystem = raspi ]
 then
     USER=pi
 else
@@ -110,7 +112,7 @@ INSTALLMODE=user
 OPTDESTDIR=""
 PREFIX=""
 SUSI_SERVER_USER=
-if [ $isRaspi = 0 ]
+if [ ! $targetSystem = raspi ]
 then
     while [[ $# -gt 0 ]]
     do
@@ -199,7 +201,7 @@ if [ $INSTALLMODE = system ] ; then
     # in the common-script-start.in of susi_linux!
     WORKDIR='$HOME/.SUSI.AI'
 else
-    if [ $isRaspi = 1 ] ; then
+    if [ $targetSystem = raspi ] ; then
         DESTDIR=/home/pi/SUSI.AI
         SUSI_SERVER_USER=pi
     else
@@ -243,7 +245,7 @@ fi
 # Set up default sudo mode
 # on Raspi and in system mode, use sudo
 # Otherwise leave empty so that user is asked whether to use it
-if [ $isRaspi = 1 -o $INSTALLMODE = system ] ; then
+if [ $targetSystem = raspi -o $INSTALLMODE = system ] ; then
     # on the RPi we always can run sudo
     # in system mode we expect root or sudo-able user to do it
     SUDOCMD=sudo
@@ -327,7 +329,7 @@ install_pip_dependencies()
     reqfiles="susi_python/requirements.txt susi_linux/requirements.txt"
 
     echo "Installing Python Dependencies"
-    if [ $isRaspi = 0 ] ; then
+    if [ ! $targetSystem = raspi ] ; then
         PIPDEPS="`cat $reqfiles | grep -v '^\(\s*#\|\s*$\|--\)' | sed -e 's/=.*//' -e 's/>.*$//' -e 's/\s.*$//'`"
 
         # For now ignore the versioned deps
@@ -352,13 +354,13 @@ install_pip_dependencies()
         fi
     fi
 
-    if [ $isRaspi = 1 ] ; then
+    if [ $targetSystem = raspi ] ; then
         $SUDOCMD pip3 install -U pip wheel
     fi
 
     $SUDOCMD pip3 install -r susi_python/requirements.txt
     $SUDOCMD pip3 install -r susi_linux/requirements.txt
-    if [ $isRaspi = 1 ] ; then
+    if [ $targetSystem = raspi ] ; then
         $SUDOCMD pip3 install -r susi_linux/requirements-rpi.txt
     fi
 }
@@ -484,7 +486,7 @@ fi
 
 #
 # install seeed card driver only on RPi
-if [ $isRaspi = 1 ]
+if [ $targetSystem = raspi ]
 then
     install_seeed_voicecard_driver
 fi
@@ -497,7 +499,7 @@ then
     wget "http://www.festvox.org/flite/packed/flite-2.0/voices/cmu_us_slt.flitevox" -P susi_linux/extras
 fi
 
-if [ $isRaspi = 1 ]
+if [ $targetSystem = raspi ]
 then
     echo "Updating the Udev Rules"
     cd $DIR_PATH
@@ -505,7 +507,7 @@ then
 fi
 
 # systemd files rework
-if [ $isRaspi = 1 ]
+if [ $targetSystem = raspi ]
 then
     echo "Installing RPi specific Systemd Rules"
     sudo bash $DIR_PATH/raspi/Deploy/auto_boot.sh
@@ -517,9 +519,9 @@ cp 'susi_linux/systemd/ss-susi-linux@.service.in' 'ss-susi-linux@.service'
 cp 'susi_linux/systemd/ss-susi-linux.service.in' 'ss-susi-linux.service'
 sed -i -e "s!@BINDIR@!$BINDIR!" ss-susi-linux.service
 sed -i -e "s!@BINDIR@!$BINDIR!" 'ss-susi-linux@.service'
-if [ $isRaspi = 1 -o $INSTALLMODE = user ] ; then
+if [ $targetSystem = raspi -o $INSTALLMODE = user ] ; then
     # on RasPi, we install the system units into the system directories
-    if [ $isRaspi = 1 ] ; then
+    if [ $targetSystem = raspi ] ; then
         sudo cp 'ss-susi-linux@.service' /lib/systemd/system/
     else
         # Desktop in user mode
@@ -538,9 +540,9 @@ cd "$BASE_PATH"
 cp 'susi_server/systemd/ss-susi-server.service.in' 'ss-susi-server.service'
 sed -i -e "s!@INSTALL_DIR@!$BASE_PATH/susi_server!" ss-susi-server.service
 sed -i -e "s!@SUSI_SERVER_USER@!$SUSI_SERVER_USER!" ss-susi-server.service
-if [ $isRaspi = 1 -o $INSTALLMODE = user ] ; then
+if [ $targetSystem = raspi -o $INSTALLMODE = user ] ; then
     # on RasPi, we install the system units into the system directories
-    if [ $isRaspi = 1 ] ; then
+    if [ $targetSystem = raspi ] ; then
         sudo cp 'ss-susi-server.service' /lib/systemd/system/
     else
         # Desktop in user mode
@@ -571,7 +573,7 @@ rm ss-susi-server.service
 
 # enable the client service ONLY on Desktop, NOT on RPi
 # On raspi we do other setups like reset folder etc
-if [ $isRaspi = 1 ] ; then
+if [ $targetSystem = raspi ] ; then
     # enable the server service unconditionally
     sudo systemctl enable ss-susi-server
 
@@ -603,7 +605,7 @@ fi
 
 #
 # Final output
-if [ $isRaspi = 0 ] ; then
+if [ ! $targetSystem = raspi ] ; then
     echo ""
     echo "SUSI AI has been installed into $BASE_PATH."
     if [ $INSTALLMODE = user ] ; then
