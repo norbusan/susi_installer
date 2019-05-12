@@ -326,6 +326,9 @@ install_debian_dependencies()
     echo "Should we install them?"
     ask_for_sudo
 
+    if [ $targetSystem = ubuntu && $isBuster = 0 ] ; then
+        $SUDOCMD add-apt-repository universe
+    fi
     $SUDOCMD apt-get update
     $SUDOCMD -E apt-get install -y $missing_packages
 }
