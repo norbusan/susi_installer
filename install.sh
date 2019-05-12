@@ -97,7 +97,7 @@ DEBDEPS="
   python3-watson-developer-cloud ca-certificates
 "
 # vlx-bin is not available in Ubunut 16.04
-if [ $targetSystem = ubuntu && $isBuster = 0 ] ; then
+if [ $targetSystem = ubuntu -a $isBuster = 0 ] ; then
     DEBDEPS="$DEBDEPS vlc-nox"
 else
     DEBDEPS="$DEBDEPS vlc-bin"
@@ -326,7 +326,7 @@ install_debian_dependencies()
     echo "Should we install them?"
     ask_for_sudo
 
-    if [ $targetSystem = ubuntu && $isBuster = 0 ] ; then
+    if [ $targetSystem = ubuntu -a $isBuster = 0 ] ; then
         $SUDOCMD add-apt-repository universe
     fi
     $SUDOCMD apt-get update
