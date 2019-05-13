@@ -90,17 +90,19 @@ fi
 # we try to move as many pip packages to Debian packages
 DEBDEPS="
   git openssl wget python3-pip sox libsox-fmt-all flac
-  libportaudio2 libatlas3-base libpulse0 libasound2 vlc-plugin-base
-  vlc-plugin-video-splitter python3-cairo python3-flask flite
+  libportaudio2 libatlas3-base libpulse0 libasound2
+  python3-cairo python3-flask flite
   default-jdk-headless pixz udisks2 python3-requests python3-service-identity
   python3-pyaudio python3-levenshtein python3-pafy python3-colorlog
   python3-watson-developer-cloud ca-certificates
 "
+VLCNORMAL="vlc-bin vlc-plugin-base vlc-plugin-video-splitter"
+VLCOLD="vlc-nox"
 # vlx-bin is not available in Ubunut 16.04
 if [ $targetSystem = ubuntu -a $isBuster = 0 ] ; then
-    DEBDEPS="$DEBDEPS vlc-nox"
+    DEBDEPS="$DEBDEPS $VLCOLD"
 else
-    DEBDEPS="$DEBDEPS vlc-bin"
+    DEBDEPS="$DEBDEPS $VLCNORMAL"
 fi
 
 # If snowboy cannot be installed via pip we need to build it
