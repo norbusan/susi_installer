@@ -1,40 +1,41 @@
 # Installation on Ubuntu and related Debian based distributions
 
 Tested on:
-- Ubuntu 16.04 (2 August 2017)
-- Ubuntu 17.04 (2 August 2017)
-- Ubuntu 18.04 (10 July 2018)
+- Ubuntu 18.04, 18.10, 19.04
+- Debian 9 Stretch, Debian 10 Buster
 - Linux Mint 18.3 (10 July 2018)
-
-<details>
- <summary>
-   
-   ### Additional steps required for Ubuntu 18.04
- </summary>
-  
-- Java is not installed by default and there are some compatibility issues with the latest version of Java (Java 10 as of writing) installed by `default-jdk` therefore, you need to manually install an older version of Java (tested with OpenJDK Java 8).
- 
-  - You may install OpenJDK's Java 8 by running:
-  - `$ sudo apt install openjdk-8-jre openjdk-8-jdk`   
-- There are some issues with `ca-certificates`on Ubuntu 18.03 (as of writing) and you will encounter some errors while building `susi_server` if not rectified
-  - You will need to run the following commands:
-  ```
-  sudo echo '\xfe\xed\xfe\xed\x00\x00\x00\x02\x00\x00\x00\x00\xe2\x68\x6e\x45\xfb\x43\xdf\xa4\xd9\x92\xdd\x41\xce\xb6\xb2\x1c\x63\x30\xd7\x92' > /etc/ssl/certs/java/cacerts
-  sudo /var/lib/dpkg/info/ca-certificates-java.postinst configure
-  ```
-</details>
 
 ### Steps
 
-- Clone the Github Repository and open folder
+- Download the installer script and run it
 ```
-$ git clone https://github.com/fossasia/susi_installer
-$ cd susi_installer
+$ wget https://raw.githubusercontent.com/fossasia/susi_installer/development/install.sh
+$ bash install.sh
 ```
-- Run the install script
-````bash
-$ ./install.sh
-````
+
+The installation will ask whether install necessary packages via `apt-get` and
+`pip3 install` by using `sudo`. If you answer `y` at the prompt, all necessary
+requirements should be installed automatically. If you answer `n`, then you 
+need to install the requirements manually, they are mentioned in the installation
+output.
+
+### Installation location
+
+By default installation is done for the current user and into the directory
+`$HOME/SUSI.AI`. The installation mode can be changed by adding `--system` to
+the `install.sh` invocation, which will install the components system-wide.
+
+If you want to change the installation directory in single user mode, use
+`--destdir`.
+
+For details see the output of `install.sh --help`.
+
+### Configuration
+
+
+
+### Sound setup
+
 - Verify that your Audio setup is done properly. For this, first we need to check for recording devices. Run command 
 ```
 $ rec a.wav
