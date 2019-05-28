@@ -34,7 +34,7 @@ How to assembly a smart speaker: [Video](https://www.youtube.com/watch?v=jAEmRvQ
 * Rasberry Pi (smart speaker)
   - Download and flash the latest img file from: [Susibian.img](https://github.com/fossasia/susi_installer/releases) follow [setup guide.](docs/development_device_handout.md)
   - Manually setup using susi_installer - [Raspberry Pi setup guide.](docs/raspberry-pi_install.md)
-* For installation on Ubuntu and other Debian based distributions, read [Ubuntu Setup Guide](docs/ubuntu_install.md)
+* For installation on Debian, Ubuntu and other Debian based distributions, read [Desktop Installation Guide](docs/desktop_install.md)
 
 ### Configuring Smart Speaker
 * Power on the device
