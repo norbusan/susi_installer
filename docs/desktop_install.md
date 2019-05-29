@@ -1,4 +1,4 @@
-# Installation on Ubuntu and related Debian based distributions
+# Installation on Debian, Ubuntu, and other Debian based distributions
 
 Tested on:
 - Ubuntu 18.04, 18.10, 19.04
